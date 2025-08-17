@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Scale, Sparkles, Zap, Star, ArrowLeft, History, X, User, Briefcase } from 'lucide-react';
+import { Scale, Sparkles, Zap, Star, ArrowLeft, History, X, User, Briefcase, Search, FileText, LogIn, LogOut } from 'lucide-react';
 import WelcomeScreen from './components/WelcomeScreen';
 import LanguageSelection from './components/LanguageSelection';
 import PersonalDetailsForm from './components/PersonalDetailsForm';
@@ -10,6 +10,10 @@ import { CommonPersonCaseForm } from './components/CommonPersonCaseForm';
 import { AIAnalysis } from './components/AIAnalysis';
 import { analyzeCaseWithAI } from './lib/gemini';
 import { ToastContainer, ToastProps, ToastType } from './components/Toast';
+import { Login } from './components/Login';
+import { CaseTemplates } from './components/CaseTemplates';
+import { SearchLegalArticles } from './components/SearchLegalArticles';
+import { useAuth } from './contexts/AuthContext';
 
 interface CaseInfo {
   incidentType: string;
@@ -44,6 +48,9 @@ export default function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [caseHistory, setCaseHistory] = useState<CaseHistoryItem[]>([]);
   const [toasts, setToasts] = useState<ToastProps[]>([]);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showCaseTemplates, setShowCaseTemplates] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
 const translations = {
   en: {
@@ -238,6 +245,16 @@ const translations = {
     addToast('info', 'History Cleared', 'All case history has been cleared');
   };
 
+  const handleCaseTemplateSelect = (template: any) => {
+    setShowCaseTemplates(false);
+    addToast('success', 'Template Selected', `Using ${template.title} template`);
+    // Here you would populate the case form with template data
+  };
+
+  const handleSearchClose = () => {
+    setShowSearch(false);
+  };
+
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-amber-50 relative overflow-hidden">
       {/* Toast Notifications */}
@@ -319,16 +336,52 @@ const translations = {
               Justice GPT
             </motion.h1>
 
-            {/* Case History Button */}
-            <motion.button
-              onClick={() => setShowHistory(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 hover:from-slate-700 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
-            >
-              <History className="w-5 h-5" />
-              Case History
-            </motion.button>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              {/* Search Button */}
+              <motion.button
+                onClick={() => setShowSearch(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 hover:from-emerald-700 hover:to-teal-700 focus:outline-none focus:ring-4 focus:ring-emerald-300"
+              >
+                <Search className="w-5 h-5" />
+                Search
+              </motion.button>
+
+              {/* Case Templates Button */}
+              <motion.button
+                onClick={() => setShowCaseTemplates(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-purple-300"
+              >
+                <FileText className="w-5 h-5" />
+                Templates
+              </motion.button>
+
+              {/* Case History Button */}
+              <motion.button
+                onClick={() => setShowHistory(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 hover:from-slate-700 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
+              >
+                <History className="w-5 h-5" />
+                History
+              </motion.button>
+
+              {/* Login/Logout Button */}
+              <motion.button
+                onClick={() => setShowLogin(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 hover:from-amber-700 hover:to-orange-700 focus:outline-none focus:ring-4 focus:ring-amber-300"
+              >
+                <LogIn className="w-5 h-5" />
+                Login
+              </motion.button>
+            </div>
           </div>
         </motion.header>
       )}
@@ -543,6 +596,30 @@ const translations = {
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         />
       </motion.div>
+
+      {/* Login Modal */}
+      <AnimatePresence>
+        {showLogin && (
+          <Login onClose={() => setShowLogin(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Case Templates Modal */}
+      <AnimatePresence>
+        {showCaseTemplates && (
+          <CaseTemplates 
+            onSelectTemplate={handleCaseTemplateSelect}
+            onClose={() => setShowCaseTemplates(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Search Modal */}
+      <AnimatePresence>
+        {showSearch && (
+          <SearchLegalArticles onClose={handleSearchClose} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
