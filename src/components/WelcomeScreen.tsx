@@ -14,7 +14,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, t }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 1 }}
-      className="w-full h-full bg-gradient-to-br from-slate-900 via-blue-800 to-amber-700 relative overflow-hidden flex items-center justify-center"
+      className="w-full min-h-screen bg-gradient-to-br from-slate-900 via-blue-800 to-amber-700 relative overflow-hidden flex items-center justify-center"
     >
       {/* Simple Background Particles */}
       <div className="absolute inset-0 overflow-hidden">
@@ -66,17 +66,17 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, t }) => {
         ))}
       </div>
 
-      {/* Main Content Container */}
-      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-4xl px-4">
+      {/* Main Content Container - Properly structured with flexbox */}
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-4xl px-4 text-center gap-8">
         {/* Logo */}
         <motion.div
-          className="relative mb-12"
+          className="relative"
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ duration: 1, type: "spring", stiffness: 200 }}
         >
           <motion.div
-            className="w-32 h-32 bg-gradient-to-br from-blue-500 to-amber-500 rounded-full flex items-center justify-center shadow-2xl"
+            className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-blue-500 to-amber-500 rounded-full flex items-center justify-center shadow-2xl"
             animate={{
               boxShadow: [
                 "0 0 20px rgba(59, 130, 246, 0.5)",
@@ -86,7 +86,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, t }) => {
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <Scale className="w-16 h-16 text-white" />
+            <Scale className="w-12 h-12 md:w-16 md:h-16 text-white" />
           </motion.div>
           
           {/* Simple Orbiting Particles */}
@@ -116,9 +116,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, t }) => {
         </motion.div>
 
         {/* Title */}
-        <motion.div className="text-center mb-12">
+        <motion.div className="text-center">
           <motion.h1
-            className="text-5xl md:text-7xl font-extrabold mb-6"
+            className="text-4xl md:text-5xl lg:text-7xl font-extrabold mb-6"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
@@ -142,7 +142,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, t }) => {
           </motion.h1>
           
           <motion.p
-            className="text-xl md:text-2xl text-amber-200 font-medium max-w-2xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl lg:text-2xl text-amber-200 font-medium max-w-2xl mx-auto leading-relaxed px-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.5 }}
@@ -151,11 +151,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, t }) => {
           </motion.p>
         </motion.div>
 
-        {/* Enter Button - Fixed Size */}
-        <motion.div className="relative mb-20">
+        {/* Enter Button */}
+        <motion.div className="relative">
           <motion.button
             onClick={onEnter}
-            className="group relative px-16 py-8 bg-gradient-to-r from-blue-600 via-blue-500 to-amber-600 text-white font-bold text-2xl rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 hover:shadow-3xl"
+            className="group relative px-8 md:px-16 py-6 md:py-8 bg-gradient-to-r from-blue-600 via-blue-500 to-amber-600 text-white font-bold text-lg md:text-2xl rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 hover:shadow-3xl"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 2, type: "spring", stiffness: 200 }}
@@ -185,44 +185,42 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, t }) => {
           </motion.button>
         </motion.div>
 
-        {/* Floating Features */}
+        {/* Features Row - Now properly aligned */}
         <motion.div
-          className="absolute bottom-12 left-1/2 transform -translate-x-1/2"
+          className="flex flex-col md:flex-row justify-center gap-6 md:gap-12 px-4"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 2.5 }}
         >
-          <div className="flex gap-12">
-            {[
-              { icon: Shield, text: "Legal Protection", color: "text-blue-300" },
-              { icon: BookOpen, text: "Expert Analysis", color: "text-amber-300" },
-              { icon: Star, text: "AI Powered", color: "text-blue-300" },
-            ].map((feature, i) => (
+          {[
+            { icon: Shield, text: "Legal Protection", color: "text-blue-300" },
+            { icon: BookOpen, text: "Expert Analysis", color: "text-amber-300" },
+            { icon: Star, text: "AI Powered", color: "text-blue-300" },
+          ].map((feature, i) => (
+            <motion.div
+              key={i}
+              className="flex flex-col items-center gap-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 2.8 + i * 0.2 }}
+              whileHover={{ y: -5 }}
+            >
               <motion.div
-                key={i}
-                className="flex flex-col items-center gap-3"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 2.8 + i * 0.2 }}
-                whileHover={{ y: -5 }}
+                className={`${feature.color} text-2xl`}
+                animate={{
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  delay: i * 0.5,
+                }}
               >
-                <motion.div
-                  className={`${feature.color} text-2xl`}
-                  animate={{
-                    scale: [1, 1.1, 1],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    delay: i * 0.5,
-                  }}
-                >
-                  <feature.icon size={32} />
-                </motion.div>
-                <span className="text-white/80 text-sm font-medium text-center">{feature.text}</span>
+                <feature.icon size={32} />
               </motion.div>
-            ))}
-          </div>
+              <span className="text-white/80 text-sm font-medium text-center">{feature.text}</span>
+            </motion.div>
+          ))}
         </motion.div>
 
         {/* Simple Background Animation */}

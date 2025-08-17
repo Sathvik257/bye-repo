@@ -4,6 +4,7 @@ import {
   Sparkles, Zap, Star, CheckCircle, Clock, BookOpen, Shield, 
   Download, Printer, Scale, Gavel, FileText, Target, TrendingUp 
 } from 'lucide-react';
+import { LoadingSkeleton } from './LoadingSkeleton';
 
 interface AIAnalysisProps {
   analysis: string | null;
@@ -34,7 +35,7 @@ const GlossaryTooltip: React.FC<{ children: React.ReactNode; article: { title: s
 export const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, isLoading, t, userRole }) => {
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Split the analysis into sections for better formatting (aligned to new structured output)
+  // Split the analysis into sections for better formatting
   let classification = '', laws = '', detailedAnalysis = '', procedural = '', precedents = '', actionPlan = '', constitutional = '', teachersNote = '';
   if (analysis) {
     const classMatch = analysis.match(/### Case Classification[\s\S]*?(?=###|$)/);
@@ -93,141 +94,7 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, isLoading, t, 
       
       <div ref={printRef} className="print:bg-white print:text-black print:shadow-none print:p-0 w-full h-full">
         {isLoading ? (
-          <motion.div
-            key="loading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center gap-8 py-24 relative w-full h-full"
-          >
-            {/* Animated background */}
-            <motion.div
-              className="absolute inset-0 flex items-center justify-center z-0"
-              initial={{ opacity: 0.5, scale: 0.8 }}
-              animate={{ opacity: [0.5, 0.8, 0.5], scale: [0.8, 1.1, 0.8] }}
-              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-              style={{ filter: 'blur(80px)' }}
-            >
-              <div className="w-96 h-96 rounded-full bg-gradient-to-br from-blue-300 via-slate-300 to-amber-300 opacity-40" />
-            </motion.div>
-            
-            {/* Centered icon stack */}
-            <div className="relative flex items-center justify-center w-48 h-48 z-20">
-              {/* Rotating scale icon behind main icon */}
-              <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                className="absolute w-32 h-32 text-blue-400/30"
-              >
-                <Scale className="w-full h-full" />
-              </motion.div>
-              
-              {/* Main pulsing icon */}
-              <motion.div
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{ 
-                  scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                }}
-                className="relative z-10"
-              >
-                <motion.div
-                  className="w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-500 rounded-full flex items-center justify-center shadow-2xl"
-                  animate={{
-                    boxShadow: [
-                      "0 0 20px rgba(59, 130, 246, 0.5)",
-                      "0 0 40px rgba(245, 158, 11, 0.5)",
-                      "0 0 20px rgba(59, 130, 246, 0.5)",
-                    ],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Scale className="w-12 h-12 text-white" />
-                </motion.div>
-              </motion.div>
-              
-              {/* Orbiting particles */}
-              {[...Array(8)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-2 h-2 bg-amber-400 rounded-full"
-                  style={{
-                    left: "50%",
-                    top: "50%",
-                    marginLeft: "-4px",
-                    marginTop: "-4px",
-                  }}
-                  animate={{
-                    x: [0, 60 * Math.cos((i * 45 * Math.PI) / 180)],
-                    y: [0, 60 * Math.sin((i * 45 * Math.PI) / 180)],
-                    opacity: [0, 1, 0],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    delay: i * 0.5,
-                    ease: "easeInOut",
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Loading text */}
-            <motion.div
-              className="text-center z-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <motion.h2
-                className="text-3xl font-bold mb-4 bg-gradient-to-r from-slate-700 via-blue-700 to-amber-600 bg-clip-text text-transparent"
-                animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                style={{ backgroundSize: "200% 200%" }}
-              >
-                Analyzing Your Case
-              </motion.h2>
-              <motion.p className="text-lg text-slate-600 mb-6">
-                Our AI is carefully examining every detail...
-              </motion.p>
-              
-              {/* Progress indicators */}
-              <div className="flex justify-center gap-2 mb-4">
-                {[...Array(3)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="w-3 h-3 bg-gradient-to-r from-blue-500 to-amber-500 rounded-full"
-                    animate={{
-                      scale: [1, 1.5, 1],
-                      opacity: [0.5, 1, 0.5],
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      delay: i * 0.3,
-                      ease: "easeInOut",
-                    }}
-                  />
-                ))}
-              </div>
-              
-              {/* Progress bar */}
-              <motion.div
-                className="w-64 h-2 bg-slate-200 rounded-full overflow-hidden"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-              >
-                <motion.div
-                  className="h-full bg-gradient-to-r from-blue-500 via-slate-500 to-amber-500 rounded-full"
-                  initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 3, ease: "easeInOut" }}
-                />
-              </motion.div>
-            </motion.div>
-          </motion.div>
+          <LoadingSkeleton />
         ) : analysis ? (
           <motion.div
             className="p-8 space-y-8 w-full h-full overflow-y-auto"
@@ -331,7 +198,7 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, isLoading, t, 
                 >
                   <motion.div
                     animate={{ 
-                      y: [0, -5, 0],
+                      scale: [1, 1.1, 1]
                     }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
@@ -356,19 +223,21 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, isLoading, t, 
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.4, duration: 0.6, type: 'spring', stiffness: 200 }}
-                className="bg-gradient-to-br from-white to-blue-50 rounded-3xl shadow-xl p-8 border border-white/50 backdrop-blur-sm"
+                className="bg-gradient-to-br from-white to-green-50 rounded-3xl shadow-xl p-8 border border-white/50 backdrop-blur-sm"
               >
                 <motion.div 
-                  className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-slate-800 via-blue-800 to-amber-700 bg-clip-text mb-4 flex items-center gap-3"
+                  className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-slate-800 via-green-800 to-emerald-700 bg-clip-text mb-4 flex items-center gap-3"
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.5 }}
                 >
                   <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                    animate={{ 
+                      rotate: [0, 5, 0, -5, 0]
+                    }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <Clock className="h-8 w-8 text-blue-700" />
+                    <FileText className="h-8 w-8 text-green-700" />
                   </motion.div>
                   Procedural Aspects
                 </motion.div>
@@ -383,25 +252,27 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, isLoading, t, 
               </motion.div>
             )}
 
-            {/* Legal Precedents - Only for Common Person */}
-            {precedents && userRole === 'common' && (
+            {/* Legal Precedents */}
+            {precedents && (
               <motion.div
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.5, duration: 0.6, type: 'spring', stiffness: 200 }}
-                className="bg-gradient-to-br from-white to-slate-50 rounded-3xl shadow-xl p-8 border border-white/50 backdrop-blur-sm"
+                className="bg-gradient-to-br from-white to-purple-50 rounded-3xl shadow-xl p-8 border border-white/50 backdrop-blur-sm"
               >
                 <motion.div 
-                  className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-slate-800 via-blue-800 to-amber-700 bg-clip-text mb-4 flex items-center gap-3"
+                  className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-slate-800 via-purple-800 to-indigo-700 bg-clip-text mb-4 flex items-center gap-3"
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.6 }}
                 >
                   <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{ 
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <Star className="h-8 w-8 text-slate-700" />
+                    <Gavel className="h-8 w-8 text-purple-700" />
                   </motion.div>
                   Legal Precedents
                 </motion.div>
@@ -422,19 +293,21 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, isLoading, t, 
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.6, duration: 0.6, type: 'spring', stiffness: 200 }}
-                className="bg-gradient-to-br from-white to-amber-50 rounded-3xl shadow-xl p-8 border border-white/50 backdrop-blur-sm"
+                className="bg-gradient-to-br from-white to-emerald-50 rounded-3xl shadow-xl p-8 border border-white/50 backdrop-blur-sm"
               >
                 <motion.div 
-                  className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-slate-800 via-blue-800 to-amber-700 bg-clip-text mb-4 flex items-center gap-3"
+                  className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-slate-800 via-emerald-800 to-teal-700 bg-clip-text mb-4 flex items-center gap-3"
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.7 }}
                 >
                   <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
+                    animate={{ 
+                      scale: [1, 1.1, 1]
+                    }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <CheckCircle className="h-8 w-8 text-amber-700" />
+                    <Target className="h-8 w-8 text-emerald-700" />
                   </motion.div>
                   Professional Action Plan
                 </motion.div>
@@ -455,19 +328,21 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, isLoading, t, 
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.7, duration: 0.6, type: 'spring', stiffness: 200 }}
-                className="bg-gradient-to-br from-white to-blue-50 rounded-3xl shadow-xl p-8 border border-white/50 backdrop-blur-sm"
+                className="bg-gradient-to-br from-white to-indigo-50 rounded-3xl shadow-xl p-8 border border-white/50 backdrop-blur-sm"
               >
                 <motion.div 
-                  className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-slate-800 via-blue-800 to-amber-700 bg-clip-text mb-4 flex items-center gap-3"
+                  className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-slate-800 via-indigo-800 to-blue-700 bg-clip-text mb-4 flex items-center gap-3"
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.8 }}
                 >
                   <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{ 
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <Shield className="h-8 w-8 text-blue-700" />
+                    <Star className="h-8 w-8 text-indigo-700" />
                   </motion.div>
                   Constitutional Implications
                 </motion.div>
@@ -485,38 +360,73 @@ export const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, isLoading, t, 
             {/* Teacher's Note */}
             {teachersNote && (
               <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.8, duration: 0.6, type: 'spring', stiffness: 200 }}
-                className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 rounded-3xl p-6 mt-6 text-amber-900 font-medium print:bg-white print:border-none print:text-black shadow-lg backdrop-blur-sm"
+                className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl shadow-xl p-8 border border-amber-200/50 backdrop-blur-sm"
               >
-                <motion.div className="flex items-center gap-3 mb-3">
+                <motion.div 
+                  className="text-2xl font-bold text-amber-800 mb-4 flex items-center gap-3"
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                >
                   <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    animate={{ 
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <Sparkles className="h-6 w-6 text-amber-600" />
+                    <Sparkles className="h-6 w-6 text-amber-700" />
                   </motion.div>
-                  <span className="font-bold text-lg">Teacher's Note:</span>
+                  Teacher's Note
                 </motion.div>
-                <motion.div
+                <motion.div 
+                  className="text-lg text-amber-800 whitespace-pre-line print:text-black leading-relaxed italic"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.9 }}
+                  transition={{ delay: 1.0 }}
                 >
                   {teachersNote}
                 </motion.div>
               </motion.div>
             )}
+
+            {/* Footer */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1 }}
+              className="text-center py-8 border-t border-gray-200"
+            >
+              <p className="text-gray-600 text-sm">
+                This analysis is for educational purposes only. Always consult current legal resources and qualified professionals.
+              </p>
+            </motion.div>
           </motion.div>
         ) : (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16 text-gray-400 italic text-xl w-full h-full flex items-center justify-center"
-          >
-            {t.noAnalysis}
-          </motion.div>
+          <div className="flex flex-col items-center justify-center gap-8 py-24 relative w-full h-full">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8 }}
+              className="text-center"
+            >
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                className="w-32 h-32 text-blue-400/30 mx-auto mb-8"
+              >
+                <Scale className="w-full h-full" />
+              </motion.div>
+              <h2 className="text-3xl font-bold text-gray-700 mb-4">
+                No Analysis Available
+              </h2>
+              <p className="text-gray-600 text-lg">
+                Submit a case to get started with AI-powered legal analysis.
+              </p>
+            </motion.div>
+          </div>
         )}
       </div>
     </motion.div>

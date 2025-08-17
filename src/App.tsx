@@ -9,6 +9,7 @@ import { LawyerCaseForm } from './components/LawyerCaseForm';
 import { CommonPersonCaseForm } from './components/CommonPersonCaseForm';
 import { AIAnalysis } from './components/AIAnalysis';
 import { analyzeCaseWithAI } from './lib/gemini';
+import { ToastContainer, ToastProps, ToastType } from './components/Toast';
 
 interface CaseInfo {
   incidentType: string;
@@ -32,7 +33,7 @@ interface CaseHistoryItem {
   analysis: string;
 }
 
-function App() {
+export default function App() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [language, setLanguage] = useState<'en' | 'hi' | 'te' | null>(null);
   const [personalDetails, setPersonalDetails] = useState<PersonalDetails | null>(null);
@@ -42,6 +43,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [caseHistory, setCaseHistory] = useState<CaseHistoryItem[]>([]);
+  const [toasts, setToasts] = useState<ToastProps[]>([]);
 
 const translations = {
   en: {
@@ -129,6 +131,16 @@ const translations = {
     }
   }, []);
 
+  const addToast = (type: ToastType, title: string, message?: string) => {
+    const id = Date.now().toString();
+    const newToast: ToastProps = { id, type, title, message };
+    setToasts(prev => [...prev, newToast]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  };
+
   const saveToHistory = (caseInfo: CaseInfo, analysis: string) => {
     const newItem: CaseHistoryItem = {
       id: Date.now().toString(),
@@ -140,6 +152,7 @@ const translations = {
     const updatedHistory = [newItem, ...caseHistory.slice(0, 9)];
     setCaseHistory(updatedHistory);
     localStorage.setItem('caseHistory', JSON.stringify(updatedHistory));
+    addToast('success', 'Case Saved', 'Your case has been saved to history');
   };
 
   const handleWelcomeEnter = () => {
@@ -161,14 +174,32 @@ const translations = {
   const handleCaseSubmit = async (info: CaseInfo) => {
     setCaseInfo(info);
     setIsLoading(true);
+    addToast('info', 'Analyzing Case', 'Our AI is analyzing your case...');
     
     try {
       const result = await analyzeCaseWithAI(info);
       setAnalysis(result);
       saveToHistory(info, result);
+      addToast('success', 'Analysis Complete', 'Your case analysis is ready!');
     } catch (error) {
       console.error('Error generating analysis:', error);
-      setAnalysis('Sorry, there was an error generating your analysis. Please try again.');
+      
+      // More specific error handling
+      let errorMessage = 'Sorry, there was an error generating your analysis. ';
+      if (error instanceof Error) {
+        if (error.message.includes('API_KEY')) {
+          errorMessage += 'Please check your API configuration.';
+          addToast('error', 'API Error', 'Please check your API configuration');
+        } else if (error.message.includes('network')) {
+          errorMessage += 'Please check your internet connection.';
+          addToast('error', 'Network Error', 'Please check your internet connection');
+        } else {
+          errorMessage += 'Please try again later.';
+          addToast('error', 'Analysis Failed', 'Please try again later');
+        }
+      }
+      
+      setAnalysis(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -204,10 +235,13 @@ const translations = {
   const handleClearHistory = () => {
     setCaseHistory([]);
     localStorage.removeItem('caseHistory');
+    addToast('info', 'History Cleared', 'All case history has been cleared');
   };
 
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-amber-50 relative overflow-hidden">
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
       {/* Simple Background Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(10)].map((_, i) => (

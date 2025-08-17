@@ -1,5 +1,9 @@
-// MOCKED Gemini API for local development without a real API key
+// Real Gemini API integration
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { constitutionalArticles } from '../data/constitutionalArticles';
+
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 function detectCaseType(keywords: string): string | null {
@@ -408,7 +412,64 @@ export async function analyzeCaseWithAI(caseInfo: {
   date: string;
   location: string;
 }) {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  try {
+    // Use real Gemini API for analysis
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    const prompt = `You are an expert Indian legal analyst. Analyze this case and provide a comprehensive legal analysis in the following format:
+
+Case Information:
+- Type: ${caseInfo.incidentType}
+- Description: ${caseInfo.description}
+- Date: ${caseInfo.date}
+- Location: ${caseInfo.location}
+
+Please provide analysis in this exact format:
+
+### Case Classification
+[Classify the case type and provide basic details]
+
+### Relevant IPC Sections
+[List relevant Indian Penal Code sections with explanations]
+
+### Detailed Legal Analysis
+[Provide detailed legal reasoning including mens rea, actus reus, and evidence requirements]
+
+### Procedural Aspects
+[Explain the legal procedures and steps]
+
+### Legal Precedents
+[Provide relevant case law examples]
+
+### Professional Action Plan
+[Give actionable legal advice]
+
+### Constitutional Implications
+[Discuss constitutional rights and implications]
+
+**Teacher's Note:** [Educational insights for students]
+
+Focus on Indian law, be precise, and provide practical legal guidance.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+    
+  } catch (error) {
+    console.error('Gemini API Error:', error);
+    
+    // Fallback to mock analysis if API fails
+    console.log('Falling back to mock analysis...');
+    return await mockCaseAnalysis(caseInfo);
+  }
+}
+
+async function mockCaseAnalysis(caseInfo: {
+  incidentType: string;
+  description: string;
+  date: string;
+  location: string;
+}) {
 
   const keywords = (caseInfo.incidentType + ' ' + caseInfo.description).toLowerCase();
   const caseTypes = detectAllCaseTypes(keywords);
