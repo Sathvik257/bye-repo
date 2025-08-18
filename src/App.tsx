@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scale, Sparkles, Zap, Star, ArrowLeft, History, X, User, Briefcase, Search, FileText, LogIn, LogOut } from 'lucide-react';
 import WelcomeScreen from './components/WelcomeScreen';
@@ -51,6 +51,25 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showCaseTemplates, setShowCaseTemplates] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const { user, logout, isLoading: authLoading } = useAuth();
+  const hasAuthInitRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasAuthInitRef.current) {
+      hasAuthInitRef.current = true;
+      return;
+    }
+    if (user) {
+      addToast('success', 'Logged in', `Welcome, ${user.name}`);
+      setShowLogin(false);
+      // If still on welcome screen, advance to language selection automatically
+      if (showWelcome) {
+        setShowWelcome(false);
+      }
+    } else {
+      addToast('info', 'Logged out');
+    }
+  }, [user]);
 
 const translations = {
   en: {
@@ -132,11 +151,22 @@ const translations = {
   const t = translations[language || 'en'];
 
   useEffect(() => {
-    const savedHistory = localStorage.getItem('caseHistory');
-    if (savedHistory) {
-      setCaseHistory(JSON.parse(savedHistory));
+    // Load user-specific case history when auth state changes
+    if (user) {
+      const savedHistory = localStorage.getItem(`caseHistory:${user.id}`);
+      if (savedHistory) {
+        try {
+          setCaseHistory(JSON.parse(savedHistory));
+        } catch {
+          setCaseHistory([]);
+        }
+      } else {
+        setCaseHistory([]);
+      }
+    } else {
+      setCaseHistory([]);
     }
-  }, []);
+  }, [user]);
 
   const addToast = (type: ToastType, title: string, message?: string) => {
     const id = Date.now().toString();
@@ -149,6 +179,11 @@ const translations = {
   };
 
   const saveToHistory = (caseInfo: CaseInfo, analysis: string) => {
+    if (!user) {
+      addToast('error', 'Login required', 'Please sign in to save your case');
+      setShowLogin(true);
+      return;
+    }
     const newItem: CaseHistoryItem = {
       id: Date.now().toString(),
       type: caseInfo.incidentType,
@@ -158,11 +193,16 @@ const translations = {
     };
     const updatedHistory = [newItem, ...caseHistory.slice(0, 9)];
     setCaseHistory(updatedHistory);
-    localStorage.setItem('caseHistory', JSON.stringify(updatedHistory));
+    localStorage.setItem(`caseHistory:${user.id}`, JSON.stringify(updatedHistory));
     addToast('success', 'Case Saved', 'Your case has been saved to history');
   };
 
   const handleWelcomeEnter = () => {
+    if (!user) {
+      addToast('info', 'Sign in required', 'Please sign in or create an account to continue');
+      setShowLogin(true);
+      return;
+    }
     setShowWelcome(false);
   };
 
@@ -240,8 +280,13 @@ const translations = {
   };
 
   const handleClearHistory = () => {
+    if (!user) {
+      addToast('error', 'Login required', 'Sign in to manage your history');
+      setShowLogin(true);
+      return;
+    }
     setCaseHistory([]);
-    localStorage.removeItem('caseHistory');
+    localStorage.removeItem(`caseHistory:${user.id}`);
     addToast('info', 'History Cleared', 'All case history has been cleared');
   };
 
@@ -371,16 +416,33 @@ const translations = {
                 History
               </motion.button>
 
-              {/* Login/Logout Button */}
-              <motion.button
-                onClick={() => setShowLogin(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 hover:from-amber-700 hover:to-orange-700 focus:outline-none focus:ring-4 focus:ring-amber-300"
-              >
-                <LogIn className="w-5 h-5" />
-                Login
-              </motion.button>
+              {/* Auth Controls */}
+              {user ? (
+                <div className="flex items-center gap-3">
+                  <div className="px-3 py-2 bg-white/80 text-slate-700 font-medium rounded-xl border border-white/60 shadow">
+                    Hi, {user.name}
+                  </div>
+                  <motion.button
+                    onClick={() => logout()}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-600 to-red-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 hover:from-rose-700 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-rose-300"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Logout
+                  </motion.button>
+                </div>
+              ) : (
+                <motion.button
+                  onClick={() => setShowLogin(true)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 hover:from-amber-700 hover:to-orange-700 focus:outline-none focus:ring-4 focus:ring-amber-300"
+                >
+                  <LogIn className="w-5 h-5" />
+                  Login
+                </motion.button>
+              )}
             </div>
           </div>
         </motion.header>

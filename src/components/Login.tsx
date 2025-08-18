@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Lock, Mail, User, Scale, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User, Scale } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginProps {
@@ -22,6 +22,8 @@ export const Login: React.FC<LoginProps> = ({ onClose }) => {
 
   const { login, register } = useAuth();
 
+  const isValidEmail = (email: string) => /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -32,6 +34,10 @@ export const Login: React.FC<LoginProps> = ({ onClose }) => {
         // Login
         if (!formData.email || !formData.password) {
           setError('Please fill in all fields');
+          return;
+        }
+        if (!isValidEmail(formData.email)) {
+          setError('Please enter a valid email address');
           return;
         }
         
@@ -45,6 +51,10 @@ export const Login: React.FC<LoginProps> = ({ onClose }) => {
         // Register
         if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
           setError('Please fill in all fields');
+          return;
+        }
+        if (!isValidEmail(formData.email)) {
+          setError('Please enter a valid email address');
           return;
         }
 
@@ -65,7 +75,7 @@ export const Login: React.FC<LoginProps> = ({ onClose }) => {
           setError('Registration failed');
         }
       }
-    } catch (error) {
+    } catch {
       setError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
